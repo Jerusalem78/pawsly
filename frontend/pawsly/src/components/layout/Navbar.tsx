@@ -15,10 +15,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 h-[52px] bg-[#0a0a0a]/85 backdrop-blur-xl border-b border-white/[0.08] flex items-center px-6 gap-2 z-50">
-      <div
-        className="text-[17px] font-semibold cursor-pointer mr-2"
-        onClick={() => navigate('/')}
-      >
+      <div className="text-[17px] font-semibold cursor-pointer mr-2" onClick={() => navigate('/')}>
         Paws<span className="text-[#5e9bff]">ly</span>
       </div>
 
