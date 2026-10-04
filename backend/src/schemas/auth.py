@@ -11,4 +11,4 @@ class RegisterPostSchema(LoginPostSchema):
 class TokenResponseSchema(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    refresh_token: str | None = None
+    refresh_token: str 

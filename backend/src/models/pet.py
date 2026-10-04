@@ -10,13 +10,13 @@ from sqlalchemy import CheckConstraint
 class PetsOrm(Base):
     __tablename__ =  "pets"
     __table_args__=(
-        CheckConstraint("age > 0", name="age_non_negative"),
+        CheckConstraint("age > -1", name="age_non_negative"),
     )
 
     id : Mapped[uuidpk]
     owner_id : Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     name : Mapped[str] = mapped_column(String(100))
-    spices : Mapped[Spicies]
+    spicies : Mapped[Spicies]
     breed : Mapped[str | None] = mapped_column(String(100))
     age : Mapped[int]
     special_notes : Mapped[str | None] = mapped_column(String(2048))

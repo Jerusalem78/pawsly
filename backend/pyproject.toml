@@ -19,5 +19,4 @@ dependencies = [
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 
-[tool.uv]
-pythonpath = ["src"]
+

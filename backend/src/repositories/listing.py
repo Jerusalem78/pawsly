@@ -48,8 +48,8 @@ class ListingRepository(BaseRepository[ListingOrm]):
             select(ListingOrm).
             offset(offset)
             .limit(limit)
-            .join(ListingOrm.pet)
-            .options(joinedload(ListingOrm.pet))
+            .join(ListingOrm.pets)
+            .options(joinedload(ListingOrm.pets))
             .where(*filters)
         )
 

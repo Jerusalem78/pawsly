@@ -21,7 +21,7 @@ class PetsService:
 
         pet = await self.pet_repo.create(
             name = data.name,
-            spices = data.spices,
+            spices = data.spicies,
             breed = data.breed,
             age = data.age,
             special_notes = data.special_notes,

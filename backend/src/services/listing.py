@@ -45,12 +45,26 @@ class ListingService:
 
         return listing
 
-    async def get_listing(self, offset: int = 0, limit: int = 20):
-
-        listing = await self.listing_repo.get_all(offset=offset, limit=limit)
-
+    async def get_listing(
+        self,
+        offset: int = 0,
+        limit: int = 20,
+        date_start=None,
+        date_end=None,
+        spicies=None,
+        min_price=None,
+        max_price=None,
+    ):
+        listing = await self.listing_repo.get_with_filters(
+            offset=offset,
+            limit=limit,
+            date_start=date_start,
+            date_end=date_end,
+            species=spicies,
+            min_price=min_price,
+            max_price=max_price,
+        )
         return listing
-
     async def get_my_listing(self, user_id : UUID,  offset: int = 0, limit: int = 20):
         listing = await self.listing_repo.get_by_owner_id(owner_id=user_id, limit=limit, offset=offset)
         return listing

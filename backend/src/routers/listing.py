@@ -24,7 +24,7 @@ async def get_all_listing(
         limit=limit,
         date_start=filters.date_start,
         date_end=filters.date_end,
-        species=filters.species,
+        spicies=filters.spicies,
         min_price=filters.min_price,
         max_price=filters.max_price,
     )

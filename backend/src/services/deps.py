@@ -1,25 +1,23 @@
 from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db
 from src.core.security import decode_access_token
-from src.core.exceptions import UnauthorizedException, NotFoundException
+from src.core.exceptions import UnauthorizedException, NotFoundException, ForbiddenException
 from src.core.enums import Role
-from src.core.exceptions import ForbiddenException
 from src.repositories.user import UserRepository
 from src.models.user import UserOrm
 import jwt
 
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+security = HTTPBearer()
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    credentials=Depends(security),
     session: AsyncSession = Depends(get_db),
 ) -> UserOrm:
     try:
-        payload = decode_access_token(token)
+        payload = decode_access_token(credentials.credentials)
     except jwt.ExpiredSignatureError:
         raise UnauthorizedException("Токен истёк")
     except jwt.InvalidTokenError:
