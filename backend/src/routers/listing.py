@@ -28,6 +28,14 @@ async def get_all_listing(
         min_price=filters.min_price,
         max_price=filters.max_price,
     )
+
+@listing_router.get("/{listing_id}", response_model=ListingGetSchema)
+async def get_listing_by_id(
+    listing_id: UUID,
+    user=Depends(get_current_user),
+    service: ListingService = Depends(get_listing_service),
+) -> ListingGetSchema:
+    return await service.get_listing_by_id(listing_id)
     
 @listing_router.post('/create', response_model=ListingGetSchema)
 async def create_listing(data : ListingPostSchema,

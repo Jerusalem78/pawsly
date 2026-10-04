@@ -1,5 +1,5 @@
 from src.repositories.listing import ListingRepository
-from src.repositories.booking import BaseRepository
+from src.repositories.booking import BookingRepository
 from src.repositories.application import ApplicationRepository
 from src.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +14,7 @@ class ApplicationService:
         self.session : AsyncSession = session
         self.application_repo = ApplicationRepository(session)
         self.listing_repo = ListingRepository(session)
-        self.booking_repo = BaseRepository(session)
+        self.booking_repo = BookingRepository(session)
 
     async def get_my_application(self, user_id: UUID, limit : int = 20, offset : int = 0):
         application = await self.application_repo.get_by_sitter_id(user_id, limit, offset)
@@ -24,6 +24,9 @@ class ApplicationService:
     async def get_listing_application(self, listing_id, user_id):
         listing = await self.listing_repo.get_by_id(listing_id)
 
+        if not listing:
+            raise NotFoundException("Листинг не найден")
+
         if listing.owner_id != user_id:
             raise ForbiddenException("вы не владелец")
 
@@ -31,23 +34,24 @@ class ApplicationService:
 
         return application
 
-    async def create_application(self, data : ApplicationPostSchema):
+    async def create_application(self, user_id: UUID, data: ApplicationPostSchema):
+        listing = await self.listing_repo.get_by_listing_id(data.listing_id)
 
-        listing = await self.listing_repo.get_by_listing_id(
-            data.listing_id
-        ) 
+        if not listing:
+            raise NotFoundException("Листинг не найден")
+
         if listing.status != ListingStatus.OPEN:
-            BadRequestException("ваша заявка не открыта")
+            raise BadRequestException("Листинг не открыт")
 
         application = await self.application_repo.create(
-            listing_id = data.listing_id,
-            message = data.message
+            listing_id=data.listing_id,
+            sitter_id=user_id,
+            messege=data.message,
         )
 
-        await self.session.execute()
-        await self.session.refresh(application)
+        await self.session.commit()
 
-        return application
+        return await self.application_repo.get_by_id(application.id)
 
     async def accept_application(self, user_id: UUID, application_id: UUID):
         application = await self.application_repo.get_by_id(application_id)
@@ -56,6 +60,9 @@ class ApplicationService:
             raise NotFoundException("Заявка не найдена")
         
         listing = await self.listing_repo.get_by_id(application.listing_id)
+
+        if not listing:
+            raise NotFoundException("Листинг не найден")
         
         if listing.owner_id != user_id:
             raise ForbiddenException("Не ваш листинг")
@@ -67,7 +74,7 @@ class ApplicationService:
         
         await self.listing_repo.update(listing.id, status=ListingStatus.MATCHED)
         
-        booking = await self.booking_repoww.create(
+        booking = await self.booking_repo.create(
             listing_id=listing.id,
             owner_id=user_id,
             sitter_id=application.sitter_id,
@@ -75,6 +82,6 @@ class ApplicationService:
         )
         
         await self.session.commit()
-        return booking
+        return await self.application_repo.get_by_id(application_id)
             
             

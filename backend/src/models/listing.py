@@ -25,7 +25,7 @@ class ListingOrm(Base):
     owner_id : Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     pet_id : Mapped[UUID] = mapped_column(ForeignKey("pets.id", ondelete="CASCADE"))
 
-    pets : Mapped["PetsOrm"] = relationship(back_populates="listing") # noqa
+    pet : Mapped["PetsOrm"] = relationship(back_populates="listing") # noqa
     owner : Mapped["UserOrm"] = relationship(back_populates="listing") # noqa
     application : Mapped["ApplicationOrm"] = relationship(back_populates="listing") # noqa
     booking : Mapped["BookingOrm"] = relationship(back_populates="listing") # noqa

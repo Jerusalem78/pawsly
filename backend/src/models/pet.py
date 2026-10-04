@@ -16,7 +16,7 @@ class PetsOrm(Base):
     id : Mapped[uuidpk]
     owner_id : Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     name : Mapped[str] = mapped_column(String(100))
-    spicies : Mapped[Spicies]
+    spicies : Mapped[Spicies | None] = mapped_column(nullable=True)
     breed : Mapped[str | None] = mapped_column(String(100))
     age : Mapped[int]
     special_notes : Mapped[str | None] = mapped_column(String(2048))
@@ -24,4 +24,4 @@ class PetsOrm(Base):
     created_at : Mapped[datetime.datetime] = mapped_column(server_default=func.now())
 
     owner : Mapped["UserOrm"] = relationship(back_populates="pets") # noqa
-    listing : Mapped["ListingOrm"] = relationship(back_populates="pets") # noqa
+    listing : Mapped["ListingOrm"] = relationship(back_populates="pet") # noqa

@@ -17,7 +17,7 @@ class BookingService:
 
 
     async def sitter_done(self, sitter_id: UUID, booking_id: UUID):
-        booking = self.booking_repo.get_by_id(booking_id)
+        booking = await self.booking_repo.get_by_id(booking_id)
         if not booking:
             raise NotFoundException("Букинг не найден")
         if booking.sitter_id != sitter_id:

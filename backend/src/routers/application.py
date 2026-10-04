@@ -32,12 +32,13 @@ async def get_application_id(listing_id : UUID,
 
 @application_router.post("/create", response_model=ApplicationGetSchema)
 async def create_application(
-    data : ApplicationPostSchema,
-    service : ApplicationService = Depends(get_application_service),
-    user = Depends(get_current_user),
+    data: ApplicationPostSchema,
+    service: ApplicationService = Depends(get_application_service),
+    user=Depends(get_current_user),
 ) -> ApplicationGetSchema:
     return await service.create_application(
-        data=data
+        user_id=user.id,
+        data=data,
     )
 
 @application_router.patch('/accept/{application_id}', response_model=ApplicationGetSchema)

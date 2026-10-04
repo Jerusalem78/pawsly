@@ -33,17 +33,22 @@ class ListingService:
         if user_id != pet.owner_id:
             raise BadRequestException("Это не ваш питомец")
 
+        if data.date_start >= data.date_end:
+            raise BadRequestException("date_end должен быть позже date_start")
+
         listing = await self.listing_repo.create(
-                pet_id  = data.pet_id,
-                date_start = data.date_start,
-                date_end = data.date_end,
-                price_per_day = data.price_per_day,
-                description = data.description,
+                owner_id=user_id,
+                pet_id=data.pet_id,
+                date_start=data.date_start,
+                date_end=data.date_end,
+                price_per_day=data.price_per_day,
+                description=data.description,
         )
 
         await self.session.commit()
 
-        return listing
+        refreshed_listing = await self.listing_repo.get_by_id(listing.id)
+        return refreshed_listing
 
     async def get_listing(
         self,
@@ -67,6 +72,14 @@ class ListingService:
         return listing
     async def get_my_listing(self, user_id : UUID,  offset: int = 0, limit: int = 20):
         listing = await self.listing_repo.get_by_owner_id(owner_id=user_id, limit=limit, offset=offset)
+        return listing
+
+    async def get_listing_by_id(self, listing_id: UUID):
+        listing = await self.listing_repo.get_by_id(listing_id)
+
+        if not listing:
+            raise NotFoundException("Листинг не найден")
+
         return listing
 
     async def update_my_listing(self, user_id: UUID, listing_id : UUID, data : ListingUpdateSchemas):

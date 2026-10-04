@@ -21,7 +21,7 @@ class PetsService:
 
         pet = await self.pet_repo.create(
             name = data.name,
-            spices = data.spicies,
+            spicies = data.spicies,
             breed = data.breed,
             age = data.age,
             special_notes = data.special_notes,
@@ -45,19 +45,23 @@ class PetsService:
     async def update_my_pet(self, user_id: UUID, pet_id: UUID, data: PetUpdateSchema):
         pet = await self.pet_repo.get_by_id(pet_id)
 
-        self.__check_pet(pet=pet,user_id=user_id)
-        
+        self.__check_pet(pet=pet, user_id=user_id)
 
-        pet = await self.pet_repo.update(pet_id, **data.model_dump(exclude_none=True))
+        payload = data.model_dump(exclude_none=True)
+        if not payload:
+            return pet
+
+        pet = await self.pet_repo.update(pet_id, **payload)
         await self.session.commit()
+        await self.session.refresh(pet)
         return pet
 
     async def delete_pet(self, pet_id: UUID, user_id: UUID):
         pet = await self.pet_repo.get_by_id(pet_id)
-        self.__check_pet(pet=pet,user_id=user_id)
+        self.__check_pet(pet=pet, user_id=user_id)
         pet = await self.pet_repo.delete(pet_id)
         await self.session.commit()
-        return pet
+        return True if pet else False
     
 
         

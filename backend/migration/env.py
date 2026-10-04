@@ -1,4 +1,6 @@
-
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import asyncio
 from logging.config import fileConfig
@@ -17,6 +19,8 @@ import src.models.booking  # noqa
 import src.models.dispute  # noqa
 import src.models.wallet_transaction  # noqa
 
+print("BASE:", Base)
+print("TABLES:", Base.metadata.tables.keys())
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
@@ -60,3 +64,5 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     asyncio.run(run_migrations_online())
+
+

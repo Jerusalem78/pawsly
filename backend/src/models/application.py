@@ -18,3 +18,11 @@ class ApplicationOrm(Base):
 
     listing : Mapped["ListingOrm"] = relationship(back_populates="application") # noqa
     sitter : Mapped["UserOrm"] = relationship(back_populates="application") # noqa
+
+    @property
+    def message(self) -> str | None:
+        return self.messege
+
+    @message.setter
+    def message(self, value: str | None):
+        self.messege = value

@@ -13,13 +13,24 @@ class ListingRepository(BaseRepository[ListingOrm]):
     def __init__(self, session):
         super().__init__(session, ListingOrm)
 
+    async def get_by_id(self, id: UUID) -> ListingOrm | None:
+        result = await self.session.execute(
+            select(ListingOrm)
+            .where(ListingOrm.id == id)
+            .options(joinedload(ListingOrm.pet))
+        )
+        return result.scalar_one_or_none()
+
+    async def get_by_listing_id(self, listing_id: UUID) -> ListingOrm | None:
+        return await self.get_by_id(listing_id)
+
     async def get_by_owner_id(self, owner_id: UUID, offset: int = 0, limit: int = 20) -> list[ListingOrm]:
         result = await self.session.execute(
             select(ListingOrm)
             .offset(offset)
             .limit(limit)
             .where(ListingOrm.owner_id == owner_id)
-            .options(joinedload(ListingOrm.owner))
+            .options(joinedload(ListingOrm.owner), joinedload(ListingOrm.pet))
         )
         return list(result.scalars().all())
 
@@ -48,8 +59,8 @@ class ListingRepository(BaseRepository[ListingOrm]):
             select(ListingOrm).
             offset(offset)
             .limit(limit)
-            .join(ListingOrm.pets)
-            .options(joinedload(ListingOrm.pets))
+            .join(ListingOrm.pet)
+            .options(joinedload(ListingOrm.pet))
             .where(*filters)
         )
 
