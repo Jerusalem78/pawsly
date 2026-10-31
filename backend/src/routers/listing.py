@@ -17,19 +17,16 @@ async def get_all_listing(
     offset : int = 0,
     limit : int = 20,
     service: ListingService = Depends(get_listing_service),
+    filters : ListingService = Depends()
 ) -> list[ListingGetSchema]:
     return await service.get_listing(
         offset=offset,
-<<<<<<< HEAD
-        limit=limit
-=======
         limit=limit,
         date_start=filters.date_start,
         date_end=filters.date_end,
         spicies=filters.spicies,
         min_price=filters.min_price,
         max_price=filters.max_price,
->>>>>>> 84b52ca6b2ba64a345229aeb1c6aebf28c82f91a
     )
 
 @listing_router.get("/{listing_id}", response_model=ListingGetSchema)
