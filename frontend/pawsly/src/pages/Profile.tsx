@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button, FormGroup, Input } from '@/components/ui'
 
 export default function Profile() {
-  const [username, setUsername] = useState('denis_ivan')
+  const [username, setUsername] = useState('denis')
   const [email, setEmail] = useState('denis@example.com')
   const [saved, setSaved] = useState(false)
 

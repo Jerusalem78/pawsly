@@ -16,17 +16,11 @@ listing_router = APIRouter(prefix="/listing", tags=["listing"])
 async def get_all_listing(
     offset : int = 0,
     limit : int = 20,
-    filters: ListingFilterSchema = Depends(),
     service: ListingService = Depends(get_listing_service),
 ) -> list[ListingGetSchema]:
     return await service.get_listing(
         offset=offset,
-        limit=limit,
-        date_start=filters.date_start,
-        date_end=filters.date_end,
-        species=filters.species,
-        min_price=filters.min_price,
-        max_price=filters.max_price,
+        limit=limit
     )
     
 @listing_router.post('/create', response_model=ListingGetSchema)
