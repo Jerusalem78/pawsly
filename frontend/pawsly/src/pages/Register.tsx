@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, FormGroup, Input, Select } from '@/components/ui'
+import { validateAuth } from '@/features/auth/lib/validation'
+import { FieldError } from '@/shared/ui/FieldError'
+import { writeStorage } from '@/shared/lib/storage'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -8,6 +11,15 @@ export default function Register() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('owner')
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const next = validateAuth({ username, email, password }, true)
+    setErrors(next)
+    if (Object.keys(next).length) return
+    writeStorage('pawsly-session', { username: username.trim(), email, role })
+    navigate('/')
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
@@ -15,14 +27,18 @@ export default function Register() {
         <div className="text-[22px] font-semibold mb-1.5">Регистрация</div>
         <div className="text-[14px] text-[#a1a1a6] mb-7">Создайте аккаунт в Pawsly</div>
 
+        <form onSubmit={submit} noValidate>
         <FormGroup label="Имя пользователя">
-          <Input placeholder="ivan_petrov" value={username} onChange={e => setUsername(e.target.value)} />
+          <Input required autoComplete="username" placeholder="ivan_petrov" value={username} onChange={e => setUsername(e.target.value)} />
+          <FieldError>{errors.username}</FieldError>
         </FormGroup>
         <FormGroup label="Email">
           <Input type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+          <FieldError>{errors.email}</FieldError>
         </FormGroup>
         <FormGroup label="Пароль">
           <Input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
+          <FieldError>{errors.password}</FieldError>
         </FormGroup>
         <FormGroup label="Роль">
           <Select value={role} onChange={e => setRole(e.target.value)}>
@@ -31,7 +47,7 @@ export default function Register() {
           </Select>
         </FormGroup>
 
-        <Button variant="primary" className="w-full justify-center mt-2" onClick={() => navigate('/')}>
+        <Button type="submit" variant="primary" className="w-full justify-center mt-2">
           Создать аккаунт
         </Button>
 
@@ -41,6 +57,7 @@ export default function Register() {
             Войти
           </span>
         </div>
+        </form>
       </div>
     </div>
   )

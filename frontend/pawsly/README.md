@@ -1,75 +1,42 @@
-# React + TypeScript + Vite
+# Pawsly frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Клиентская часть учебного fullstack-проекта Pawsly: React 18, TypeScript, Vite и React Router. В этой лабораторной основные сценарии работают на демонстрационных данных в `localStorage`; запросы к backend пока не подключены.
 
-Currently, two official plugins are available:
+## Запуск
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Проверка production-сборки:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm run build
 ```
+
+## Структура
+
+```text
+src/
+├── app/                 # конфигурация приложения и маршруты
+├── pages/               # экраны приложения
+├── features/            # пользовательские действия и проверки
+├── entities/            # модели и данные предметной области
+├── shared/              # повторно используемые утилиты и UI
+├── components/          # общие компоненты интерфейса и layout
+├── types/               # общие типы TypeScript
+└── assets/              # статические ресурсы
+```
+
+Структура использует идеи Feature-Sliced Design без строгого соблюдения всех правил: страницы собирают сценарии, `features` содержит проверки пользовательского ввода, `entities` — типизированные модели предметной области, `shared` — общее хранилище и компоненты.
+
+## Демо-сценарии
+
+- Вход и регистрация проверяют email, имя пользователя и минимальную длину пароля. Демо-сессия хранится в браузере.
+- На странице «Питомцы» можно добавлять, изменять и удалять питомцев.
+- На странице «Объявления» можно публиковать объявления и закрывать их.
+- Главная страница фильтрует открытые объявления по виду животного и цене; новые объявления отображаются в общем демо-списке.
+- Отклик на объявление сохраняется в локальном хранилище браузера.
+
+Данные предназначены для демонстрации интерфейса и не синхронизируются между браузерами или с сервером.

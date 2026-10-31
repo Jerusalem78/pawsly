@@ -1,12 +1,16 @@
 import { useState } from 'react'
 import { Button, FormGroup, Input } from '@/components/ui'
+import { readStorage, writeStorage } from '@/shared/lib/storage'
 
 export default function Profile() {
-  const [username, setUsername] = useState('denis')
-  const [email, setEmail] = useState('denis@example.com')
+  const session = readStorage<{ username?: string; email?: string; role?: string }>('pawsly-session', {})
+  const [username, setUsername] = useState(session.username ?? 'denis')
+  const [email, setEmail] = useState(session.email ?? 'denis@example.com')
   const [saved, setSaved] = useState(false)
 
   function save() {
+    if (username.trim().length < 3 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return
+    writeStorage('pawsly-session', { ...session, username: username.trim(), email })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -19,7 +23,7 @@ export default function Profile() {
         </div>
         <div>
           <div className="text-[22px] font-semibold">{username}</div>
-          <div className="text-[14px] text-[#a1a1a6] mt-1">Владелец животных</div>
+          <div className="text-[14px] text-[#a1a1a6] mt-1">{session.role === 'sitter' ? 'Ситтер' : 'Владелец животных'}</div>
         </div>
       </div>
 
@@ -40,11 +44,12 @@ export default function Profile() {
           Личные данные
         </div>
         <FormGroup label="Имя пользователя">
-          <Input value={username} onChange={e => setUsername(e.target.value)} />
+          <Input value={username} minLength={3} onChange={e => setUsername(e.target.value)} aria-invalid={username.trim().length < 3} />
         </FormGroup>
         <FormGroup label="Email">
-          <Input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+          <Input type="email" value={email} onChange={e => setEmail(e.target.value)} aria-invalid={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)} />
         </FormGroup>
+        {(username.trim().length < 3 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && <p role="alert" className="text-sm text-[#ff6961] mb-3">Проверьте имя (не менее 3 символов) и email.</p>}
         <Button variant="primary" onClick={save}>
           {saved ? '✓ Сохранено' : 'Сохранить'}
         </Button>

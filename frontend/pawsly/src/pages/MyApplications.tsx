@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import { Badge } from '@/components/ui'
+import { readStorage, writeStorage } from '@/shared/lib/storage'
 
 const DEMO = [
   { id: '1', pet: '🐶 Лабрадор', dates: '10–15 авг', price: 700, status: 'pending' },
   { id: '2', pet: '🐱 Мейн-кун', dates: '20–25 авг', price: 300, status: 'accepted' },
   { id: '3', pet: '🦎 Игуана', dates: '1–10 сент', price: 400, status: 'rejected' },
 ]
+type ApplicationRow = (typeof DEMO)[number] | { id: string; pet: string; dates: string; price: number; status: string; listingId: string }
 
 const STATUS: Record<string, { label: string; variant: 'yellow' | 'green' | 'red' }> = {
   pending: { label: 'Ожидает', variant: 'yellow' },
@@ -13,6 +16,17 @@ const STATUS: Record<string, { label: string; variant: 'yellow' | 'green' | 'red
 }
 
 export default function MyApplications() {
+  const [applications, setApplications] = useState<ApplicationRow[]>(() => {
+    const submitted = readStorage<{ listingId: string; message: string }[]>('pawsly-applications', [])
+    return [...DEMO, ...submitted.map((app, index) => ({ id: `new-${index}`, pet: '🐾 Новое объявление', dates: 'См. объявление', price: 0, status: 'pending', listingId: app.listingId }))]
+  })
+  function revoke(id: string) {
+    setApplications(items => {
+      const next = items.filter(item => item.id !== id)
+      writeStorage('pawsly-applications', next.filter(item => item.id.startsWith('new-')).map(item => ({ listingId: 'listingId' in item ? item.listingId : '', message: '' })))
+      return next
+    })
+  }
   return (
     <div className="max-w-[960px] mx-auto px-6 py-8">
       <div className="mb-7">
@@ -32,7 +46,7 @@ export default function MyApplications() {
             </tr>
           </thead>
           <tbody>
-            {DEMO.map(a => {
+            {applications.map(a => {
               const s = STATUS[a.status]
               return (
                 <tr key={a.id} className="hover:[&>td]:bg-[#1c1c1e]">
@@ -44,7 +58,7 @@ export default function MyApplications() {
                   </td>
                   <td className="px-4 py-3.5 border-b border-white/[0.08]">
                     {a.status === 'pending' && (
-                      <button className="text-[13px] text-[#a1a1a6] hover:text-[#ff453a] transition-colors cursor-pointer bg-transparent border-none font-[inherit]">
+                      <button onClick={() => revoke(a.id)} className="text-[13px] text-[#a1a1a6] hover:text-[#ff453a] transition-colors cursor-pointer bg-transparent border-none font-[inherit]">
                         Отозвать
                       </button>
                     )}

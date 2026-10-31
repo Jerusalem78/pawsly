@@ -122,10 +122,10 @@ export function Modal({ open, onClose, title, children }: {
   if (!open) return null
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+      className="modal-backdrop fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-6"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-[#141414] border border-white/[0.08] rounded-[18px] w-full max-w-[440px] p-7">
+      <div className="modal-panel bg-[#141414] border border-white/[0.08] rounded-[18px] w-full max-w-[440px] p-7">
         <div className="text-[18px] font-semibold mb-5">{title}</div>
         {children}
       </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button, Modal, ModalFooter, FormGroup, Input, Select, Textarea } from '@/components/ui'
 import type { Pet } from '@/types'
+import { readStorage, writeStorage } from '@/shared/lib/storage'
 
 const DEMO_PETS: Pet[] = [
   { id: '1', owner_id: 'me', name: 'Бобик', species: 'dog', breed: 'Лабрадор', age: 3, special_notes: 'Аллергия на курицу', is_active: true },
@@ -12,22 +13,28 @@ const EMOJI: Record<string, string> = {
 }
 
 export default function MyPets() {
-  const [pets, setPets] = useState<Pet[]>(DEMO_PETS)
+  const [pets, setPets] = useState<Pet[]>(() => readStorage('pawsly-pets', DEMO_PETS))
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [species, setSpecies] = useState('dog')
   const [breed, setBreed] = useState('')
   const [age, setAge] = useState('')
   const [notes, setNotes] = useState('')
+  const [error, setError] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   function addPet() {
-    setPets(p => [...p, { id: Date.now().toString(), owner_id: 'me', name, species: species as Pet['species'], breed, age: Number(age), special_notes: notes, is_active: true }])
+    if (!name.trim() || !Number.isInteger(Number(age)) || Number(age) < 1) { setError('Укажите кличку и возраст от 1 года'); return }
+    const value: Pet = { id: editingId ?? Date.now().toString(), owner_id: 'me', name: name.trim(), species: species as Pet['species'], breed: breed.trim(), age: Number(age), special_notes: notes.trim(), is_active: true }
+    const next = editingId ? pets.map(pet => pet.id === editingId ? value : pet) : [...pets, value]
+    setPets(next); writeStorage('pawsly-pets', next); setError('')
+    setEditingId(null)
     setOpen(false)
     setName(''); setBreed(''); setAge(''); setNotes('')
   }
 
   function removePet(id: string) {
-    setPets(p => p.filter(x => x.id !== id))
+    setPets(p => { const next = p.filter(x => x.id !== id); writeStorage('pawsly-pets', next); return next })
   }
 
   return (
@@ -63,7 +70,7 @@ export default function MyPets() {
                   <div className="text-[12px] text-[#636366] mt-1">{pet.special_notes}</div>
                 )}
                 <div className="flex gap-1.5 mt-3">
-                  <Button size="sm">Изменить</Button>
+                  <Button size="sm" onClick={() => { setEditingId(pet.id); setName(pet.name); setSpecies(pet.species); setBreed(pet.breed ?? ''); setAge(String(pet.age)); setNotes(pet.special_notes ?? ''); setOpen(true) }}>Изменить</Button>
                   <Button size="sm" variant="danger" onClick={() => removePet(pet.id)}>Удалить</Button>
                 </div>
               </div>
@@ -72,7 +79,7 @@ export default function MyPets() {
         </div>
       )}
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Добавить питомца">
+      <Modal open={open} onClose={() => { setOpen(false); setError(''); setEditingId(null) }} title={editingId ? 'Изменить питомца' : 'Добавить питомца'}>
         <FormGroup label="Кличка">
           <Input placeholder="Бобик" value={name} onChange={e => setName(e.target.value)} />
         </FormGroup>
@@ -90,15 +97,16 @@ export default function MyPets() {
           <Input placeholder="Лабрадор" value={breed} onChange={e => setBreed(e.target.value)} />
         </FormGroup>
         <FormGroup label="Возраст (лет)">
-          <Input type="number" placeholder="3" value={age} onChange={e => setAge(e.target.value)} />
+          <Input type="number" min="1" step="1" placeholder="3" value={age} onChange={e => setAge(e.target.value)} />
         </FormGroup>
         <FormGroup label="Особые пометки">
           <Textarea rows={2} placeholder="Аллергии, особенности..." value={notes} onChange={e => setNotes(e.target.value)} />
         </FormGroup>
         <ModalFooter>
-          <Button onClick={() => setOpen(false)}>Отмена</Button>
+          <Button onClick={() => { setOpen(false); setEditingId(null); setError('') }}>Отмена</Button>
           <Button variant="primary" onClick={addPet}>Сохранить</Button>
         </ModalFooter>
+        {error && <p role="alert" className="text-sm text-[#ff6961] mt-3">{error}</p>}
       </Modal>
     </div>
   )
