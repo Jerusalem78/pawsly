@@ -30,12 +30,17 @@ class BaseRepository(Generic[T]):
     
     async def update(self, id : UUID, **kwargs) -> T:
         result = await self.session.execute(
-            update(self.model).where(id == self.model.id).values(**kwargs).returning(self.model)
+            update(self.model)
+            .where(self.model.id == id)
+            .values(**kwargs)
+            .returning(self.model)
         )
         return result.scalar_one_or_none()
     
     async def delete(self, id : UUID) -> T | None:
         result = await self.session.execute(
-            delete(self.model).where(id == self.model.id).returning(self.model)
+            delete(self.model)
+            .where(self.model.id == id)
+            .returning(self.model)
         )
         return result.scalar_one_or_none()

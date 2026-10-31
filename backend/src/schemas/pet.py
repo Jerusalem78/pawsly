@@ -7,7 +7,7 @@ from datetime import datetime
 class PetShortGetSchema(BaseModel):
     id : UUID
     name : str = Field(max_length=100)
-    spicies : Spicies
+    spicies : Spicies | None = None
     age : int = Field(ge=0)
 
     model_config = ConfigDict(from_attributes=True)
@@ -23,7 +23,7 @@ class PetGetSchema(PetShortGetSchema):
 
 class PetPostSchema(BaseModel):
     name : str = Field(max_length=100)
-    spicies : Spicies
+    spicies : Spicies | None
     breed : str | None = Field(default=None, max_length=100)
     age : int
     special_notes : str | None

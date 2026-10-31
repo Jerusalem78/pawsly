@@ -1,24 +1,26 @@
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import asyncio
 from logging.config import fileConfig
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy import pool
 from alembic import context
-from core.database import Base
-from core.config import settings
+from src.core.database import Base
+from src.core.config import settings
 
-import models.user  # noqa
-import models.wallet  # noqa
-import models.pet  # noqa
-import models.listing  # noqa
-import models.application  # noqa
-import models.booking  # noqa
-import models.dispute  # noqa
-import models.wallet_transaction  # noqa
+import src.models.user  # noqa
+import src.models.wallet  # noqa
+import src.models.pet  # noqa
+import src.models.listing  # noqa
+import src.models.application  # noqa
+import src.models.booking  # noqa
+import src.models.dispute  # noqa
+import src.models.wallet_transaction  # noqa
 
+print("BASE:", Base)
+print("TABLES:", Base.metadata.tables.keys())
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
@@ -62,3 +64,5 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     asyncio.run(run_migrations_online())
+
+

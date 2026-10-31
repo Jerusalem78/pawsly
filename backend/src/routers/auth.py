@@ -23,3 +23,9 @@ async def login(
 ):
     service = AuthService(session)
     return await service.login(data)
+
+
+@auth_router.post("/refresh", response_model=TokenResponseSchema)
+async def refresh(refresh_token: str, session: AsyncSession = Depends(get_db)):
+    service = AuthService(session)
+    return await service.refresh(refresh_token)

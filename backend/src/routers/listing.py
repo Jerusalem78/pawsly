@@ -20,8 +20,25 @@ async def get_all_listing(
 ) -> list[ListingGetSchema]:
     return await service.get_listing(
         offset=offset,
+<<<<<<< HEAD
         limit=limit
+=======
+        limit=limit,
+        date_start=filters.date_start,
+        date_end=filters.date_end,
+        spicies=filters.spicies,
+        min_price=filters.min_price,
+        max_price=filters.max_price,
+>>>>>>> 84b52ca6b2ba64a345229aeb1c6aebf28c82f91a
     )
+
+@listing_router.get("/{listing_id}", response_model=ListingGetSchema)
+async def get_listing_by_id(
+    listing_id: UUID,
+    user=Depends(get_current_user),
+    service: ListingService = Depends(get_listing_service),
+) -> ListingGetSchema:
+    return await service.get_listing_by_id(listing_id)
     
 @listing_router.post('/create', response_model=ListingGetSchema)
 async def create_listing(data : ListingPostSchema,

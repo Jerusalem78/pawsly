@@ -23,3 +23,11 @@ class BookingOrm(Base):
     owner: Mapped["UserOrm"] = relationship(foreign_keys=[owner_id], back_populates="owner_bookings") # noqa
     sitter: Mapped["UserOrm"] = relationship(foreign_keys=[sitter_id], back_populates="sitter_bookings") # noqa
     dispute: Mapped["DisputeOrm"] = relationship(back_populates="booking") # noqa
+
+    @property
+    def owner_confirmed_at(self) -> datetime.datetime | None:
+        return self.owner_confirned_at
+
+    @owner_confirmed_at.setter
+    def owner_confirmed_at(self, value: datetime.datetime | None):
+        self.owner_confirned_at = value

@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Field, model_validator, ConfigDict
+from pydantic import BaseModel, Field, model_validator, ConfigDict, field_validator
 from uuid import UUID
 from src.core.enums import ListingStatus, Spicies
-from datetime import datetime
+from datetime import datetime, timezone
 from src.schemas.pet import PetShortGetSchema
 
 class ListingPostSchema(BaseModel):
@@ -12,10 +12,23 @@ class ListingPostSchema(BaseModel):
     price_per_day : int = Field(gt=0)
     description : str | None = Field(default=None, max_length=2048)
 
+    @field_validator("date_start", "date_end", mode="before")
+    @classmethod
+    def normalize_datetime(cls, value):
+        if value is None:
+            return value
+
+        dt = value if isinstance(value, datetime) else datetime.fromisoformat(value)
+
+        if dt.tzinfo is not None:
+            dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+
+        return dt
+
     @model_validator(mode="after")
     def validate_dates(self):
-        if self.date_start > self.date_end and self.min_price and self.max_price:
-            raise ValueError("start date gt than date end")
+        if self.date_start >= self.date_end:
+            raise ValueError("date_end must be later than date_start")
         return self
 
 class ListingGetSchema(BaseModel):

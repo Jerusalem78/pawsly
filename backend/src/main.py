@@ -9,6 +9,8 @@ from src.routers.user import user_router
 import uvicorn
 from fastapi import FastAPI
 
+
+
 app = FastAPI()
 app.include_router(pet_router)
 app.include_router(listing_router)
@@ -18,6 +20,7 @@ app.include_router(booking_router)
 app.include_router(dispute_router)
 app.include_router(wallet_router)
 app.include_router(user_router)
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000)
